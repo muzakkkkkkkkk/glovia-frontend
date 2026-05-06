@@ -126,7 +126,7 @@ function App() {
       {/* Chat messages Area */}
       <div style={styles.chatArea}>
         {chat.map((msg, idx) => {
-          // Add these two lines to extract the text correctly
+          // These lines fix the "empty bubble" problem
           const isMe = typeof msg === 'object' ? msg.sender === "User" : false;
           const content = typeof msg === 'object' ? msg.content : msg;
 
@@ -138,6 +138,7 @@ function App() {
           );
         })}
       </div>
+
       {/* Input bar matching Screen 2 */}
       <form onSubmit={sendMessage} style={styles.inputContainer}>
         <input
