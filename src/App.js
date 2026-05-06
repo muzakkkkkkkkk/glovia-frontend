@@ -126,16 +126,18 @@ function App() {
       {/* Chat messages Area */}
       <div style={styles.chatArea}>
         {chat.map((msg, idx) => {
-          const isMe = msg.sender === "User";
+          // Add these two lines to extract the text correctly
+          const isMe = typeof msg === 'object' ? msg.sender === "User" : false;
+          const content = typeof msg === 'object' ? msg.content : msg;
+
           return (
             <div key={idx} style={styles.msgRow(isMe)}>
               <div style={styles.avatar}>{isMe ? 'U' : 'G'}</div>
-              <div style={styles.bubble(isMe)}>{msg.content}</div>
+              <div style={styles.bubble(isMe)}>{content}</div>
             </div>
           );
         })}
       </div>
-
       {/* Input bar matching Screen 2 */}
       <form onSubmit={sendMessage} style={styles.inputContainer}>
         <input
