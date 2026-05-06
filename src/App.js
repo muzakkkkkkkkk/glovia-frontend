@@ -124,7 +124,7 @@ function App() {
             </button>
             
             <p 
-              onClick={() => setShowUpload(false)} 
+              <p style={...} onClick={() => setShowUpload(false)}>} 
               style={{ textAlign: 'center', color: '#999', marginTop: '15px', cursor: 'pointer', fontSize: '14px' }}
             >
               Cancel
@@ -134,6 +134,18 @@ function App() {
       )}
 
       {/* 3. YOUR NAVIGATION BAR (ALREADY EXISTS) */}
+
+<nav style={styles.navBar}>
+        <button style={styles.navBtn} onClick={() => setActiveTab('home')}>🏠</button>
+        <button style={styles.navBtn} onClick={() => setActiveTab('chat')}>💬</button>
+        
+        {/* This is the Plus Button you were looking for */}
+        <button style={styles.plusBtn} onClick={() => setShowUpload(true)}>+</button>
+        
+        <button style={styles.navBtn}>🎮</button>
+        <button style={styles.navBtn} onClick={() => setActiveTab('profile')}>👤</button>
+      </nav>
+
       <nav style={styles.navBar}>
         ...
       </nav>
