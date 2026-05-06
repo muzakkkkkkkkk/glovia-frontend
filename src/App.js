@@ -93,6 +93,50 @@ function App() {
         <button style={styles.plusBtn}>+</button>
         <button style={styles.navBtn}>🎮</button>
         <button style={styles.navBtn} onClick={() => setActiveTab('profile')}>👤</button>
+        {/* 1. YOUR FEED OR CHAT CONTENT IS HERE */}
+      {activeTab === 'home' && ( ... )}
+
+      {/* 2. PASTE THE UPLOAD OVERLAY HERE (Exact Location) */}
+      {showUpload && (
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(255,245,247,0.98)', zIndex: 1000, padding: '40px 20px', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ background: '#fff', padding: '25px', borderRadius: '30px', boxShadow: '0 15px 35px rgba(214, 51, 132, 0.1)' }}>
+            <h2 style={{ color: '#D63384', textAlign: 'center', marginBottom: '20px' }}>New Post ✨</h2>
+            
+            <input 
+              style={{ width: '100%', padding: '12px', marginBottom: '15px', borderRadius: '15px', border: '1px solid #FEE2E9', outline: 'none' }} 
+              placeholder="Paste Image URL (Soft Pink Aesthetic)..." 
+              value={newPost.imageUrl}
+              onChange={e => setNewPost({...newPost, imageUrl: e.target.value})}
+            />
+            
+            <textarea 
+              style={{ width: '100%', padding: '12px', height: '100px', marginBottom: '20px', borderRadius: '15px', border: '1px solid #FEE2E9', outline: 'none', resize: 'none' }} 
+              placeholder="Write a cute caption..." 
+              value={newPost.caption}
+              onChange={e => setNewPost({...newPost, caption: e.target.value})}
+            />
+            
+            <button 
+              onClick={handleUpload}
+              style={{ width: '100%', backgroundColor: '#FF85A1', color: '#fff', border: 'none', padding: '14px', borderRadius: '25px', fontWeight: 'bold', cursor: 'pointer' }}
+            >
+              Share to Glovia 💕
+            </button>
+            
+            <p 
+              onClick={() => setShowUpload(false)} 
+              style={{ textAlign: 'center', color: '#999', marginTop: '15px', cursor: 'pointer', fontSize: '14px' }}
+            >
+              Cancel
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* 3. YOUR NAVIGATION BAR (ALREADY EXISTS) */}
+      <nav style={styles.navBar}>
+        ...
+      </nav>
       </nav>
     </div>
   );
