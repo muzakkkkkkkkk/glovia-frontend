@@ -30,10 +30,11 @@ function App() {
   const sendMessage = (e) => {
     e.preventDefault();
     if (message !== "" && socket) {
-      socket.emit("message", message);
-      setMessage("");
-    }
-  };
+      socket.emit("send_msg", { 
+        content: message, 
+        room: "default", 
+        sender: "User" 
+      });
 
   return (
     <div style={{ padding: '20px', fontFamily: 'Arial' }}>
