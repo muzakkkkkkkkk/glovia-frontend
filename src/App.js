@@ -96,59 +96,67 @@ function App() {
         {/* 1. YOUR FEED OR CHAT CONTENT IS HERE */}
       {activeTab === 'home' && ( ... )}
 
-      {/* 2. PASTE THE UPLOAD OVERLAY HERE (Exact Location) */}
+// Replace from the return ( line down to the very end of the file
+  return (
+    <div style={styles.container}>
+      <header style={styles.header}>
+        <span style={{ color: '#D63384', fontWeight: 'bold', fontSize: '20px' }}>Glovia 💕</span>
+        <div>🔍 🔔</div>
+      </header>
+
+      {activeTab === 'home' && (
+        <div style={styles.feedGrid}>
+          {feed.length > 0 ? feed.map((post, i) => (
+            <div key={i} style={styles.postCard}>
+              <img src={post.image_url} alt="post" style={styles.postImg} />
+              <div style={styles.postInfo}>
+                <p style={{ fontSize: '12px', margin: 0, fontWeight: 'bold' }}>{post.username}</p>
+                <p style={{ fontSize: '10px', color: '#777', margin: 0 }}>{post.caption}</p>
+              </div>
+            </div>
+          )) : <p style={{ gridColumn: 'span 2', textAlign: 'center', color: '#999', marginTop: '20px' }}>No posts yet. Be the first! ✨</p>}
+        </div>
+      )}
+
+      {activeTab === 'chat' && (
+        <div style={{ flex: 1, padding: '20px', textAlign: 'center' }}>
+          <p style={{ color: '#D63384' }}>Chatting as <strong>{username}</strong>...</p>
+        </div>
+      )}
+
+      {/* Upload Overlay */}
       {showUpload && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(255,245,247,0.98)', zIndex: 1000, padding: '40px 20px', display: 'flex', flexDirection: 'column' }}>
           <div style={{ background: '#fff', padding: '25px', borderRadius: '30px', boxShadow: '0 15px 35px rgba(214, 51, 132, 0.1)' }}>
             <h2 style={{ color: '#D63384', textAlign: 'center', marginBottom: '20px' }}>New Post ✨</h2>
-            
             <input 
               style={{ width: '100%', padding: '12px', marginBottom: '15px', borderRadius: '15px', border: '1px solid #FEE2E9', outline: 'none' }} 
-              placeholder="Paste Image URL (Soft Pink Aesthetic)..." 
+              placeholder="Paste Image URL..." 
               value={newPost.imageUrl}
               onChange={e => setNewPost({...newPost, imageUrl: e.target.value})}
             />
-            
             <textarea 
               style={{ width: '100%', padding: '12px', height: '100px', marginBottom: '20px', borderRadius: '15px', border: '1px solid #FEE2E9', outline: 'none', resize: 'none' }} 
               placeholder="Write a cute caption..." 
               value={newPost.caption}
               onChange={e => setNewPost({...newPost, caption: e.target.value})}
             />
-            
-            <button 
-              onClick={handleUpload}
-              style={{ width: '100%', backgroundColor: '#FF85A1', color: '#fff', border: 'none', padding: '14px', borderRadius: '25px', fontWeight: 'bold', cursor: 'pointer' }}
-            >
+            <button onClick={handleUpload} style={{ width: '100%', backgroundColor: '#FF85A1', color: '#fff', border: 'none', padding: '14px', borderRadius: '25px', fontWeight: 'bold', cursor: 'pointer' }}>
               Share to Glovia 💕
             </button>
-            
-            <p 
-              <p style={...} onClick={() => setShowUpload(false)}>} 
-              style={{ textAlign: 'center', color: '#999', marginTop: '15px', cursor: 'pointer', fontSize: '14px' }}
-            >
+            <p onClick={() => setShowUpload(false)} style={{ textAlign: 'center', color: '#999', marginTop: '15px', cursor: 'pointer', fontSize: '14px' }}>
               Cancel
             </p>
           </div>
         </div>
       )}
 
-      {/* 3. YOUR NAVIGATION BAR (ALREADY EXISTS) */}
-
-<nav style={styles.navBar}>
+      <nav style={styles.navBar}>
         <button style={styles.navBtn} onClick={() => setActiveTab('home')}>🏠</button>
         <button style={styles.navBtn} onClick={() => setActiveTab('chat')}>💬</button>
-        
-        {/* This is the Plus Button you were looking for */}
         <button style={styles.plusBtn} onClick={() => setShowUpload(true)}>+</button>
-        
         <button style={styles.navBtn}>🎮</button>
         <button style={styles.navBtn} onClick={() => setActiveTab('profile')}>👤</button>
-      </nav>
-
-      <nav style={styles.navBar}>
-        ...
-      </nav>
       </nav>
     </div>
   );
