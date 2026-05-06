@@ -9,15 +9,17 @@ function App() {
   const [message, setMessage] = useState("");
   const [chat, setChat] = useState([]);
 
-  useEffect(() => {
-    // Connect to the backend
+ useEffect(() => {
     const newSocket = io(SOCKET_SERVER_URL, {
       transports: ["websocket"]
     });
 
     setSocket(newSocket);
 
-    // Listen for incoming messages
+    // Add this: Join the 'default' room so the backend can find you
+    newSocket.emit('join', { room: 'default' });
+
+    // Ensure this matches the 'message' event the backend will broadcast
     newSocket.on("message", (msg) => {
       setChat((prevChat) => [...prevChat, msg]);
     });
