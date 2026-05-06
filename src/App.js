@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 
-// Replace with your actual Live Render URL from the previous step!
 const SOCKET_SERVER_URL = "https://glovia-backend-i15x.onrender.com";
 
 function App() {
@@ -9,17 +8,15 @@ function App() {
   const [message, setMessage] = useState("");
   const [chat, setChat] = useState([]);
 
- useEffect(() => {
+  useEffect(() => {
     const newSocket = io(SOCKET_SERVER_URL, {
       transports: ["websocket"]
     });
 
     setSocket(newSocket);
 
-    // Add this: Join the 'default' room so the backend can find you
     newSocket.emit('join', { room: 'default' });
 
-    // Ensure this matches the 'message' event the backend will broadcast
     newSocket.on("message", (msg) => {
       setChat((prevChat) => [...prevChat, msg]);
     });
@@ -35,6 +32,9 @@ function App() {
         room: "default", 
         sender: "User" 
       });
+      setMessage("");
+    }
+  };
 
   return (
     <div style={{ padding: '20px', fontFamily: 'Arial' }}>
@@ -45,10 +45,10 @@ function App() {
         ))}
       </div>
       <form onSubmit={sendMessage}>
-        <input 
-          value={message} 
-          onChange={(e) => setMessage(e.target.value)} 
-          placeholder="Type a message..." 
+        <input
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          placeholder="Type a message..."
         />
         <button type="submit">Send</button>
       </form>
