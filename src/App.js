@@ -130,16 +130,78 @@ function HomeFeed({ searchQuery }) {
 }
 
 function ChatSection({ currentUser }) {
+  const [chatType, setChatType] = useState('all'); // 'all' or 'groups'
+  const [messages, setMessages] = useState([]);
+
   return (
-    <div style={{ padding: '20px' }}>
-      <h3 style={{ color: '#FF85A1' }}>1-on-1 Messages 💌</h3>
-      <div style={{ background: '#fff', borderRadius: '20px', height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ccc' }}>
-        Search a user to start chatting!
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', backgroundColor: '#FFF9FB' }}>
+      {/* 1. THE PINK TOGGLE BAR (Matches image 2 & 7) */}
+      <div style={{ display: 'flex', padding: '15px', gap: '10px' }}>
+        <button 
+          onClick={() => setChatType('all')}
+          style={{ 
+            flex: 1, padding: '12px', borderRadius: '25px', border: 'none', fontWeight: 'bold',
+            backgroundColor: chatType === 'all' ? '#FF85A1' : '#fff',
+            color: chatType === 'all' ? '#fff' : '#FF85A1',
+            boxShadow: '0 4px 10px rgba(255, 133, 161, 0.2)', transition: '0.2s'
+          }}>All Girls Chat 🌸</button>
+        <button 
+          onClick={() => setChatType('groups')}
+          style={{ 
+            flex: 1, padding: '12px', borderRadius: '25px', border: 'none', fontWeight: 'bold',
+            backgroundColor: chatType === 'groups' ? '#FF85A1' : '#fff',
+            color: chatType === 'groups' ? '#fff' : '#FF85A1',
+            boxShadow: '0 4px 10px rgba(255, 133, 161, 0.1)'
+          }}>My Groups 👥</button>
+      </div>
+
+      {/* 2. CHAT MESSAGES AREA */}
+      <div style={{ flex: 1, overflowY: 'auto', padding: '15px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+        {messages.map((msg, i) => {
+          const isMe = msg.sender === currentUser;
+          return (
+            <div key={i} style={{ display: 'flex', flexDirection: 'column', alignSelf: isMe ? 'flex-end' : 'flex-start', maxWidth: '80%' }}>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-end', flexDirection: isMe ? 'row-reverse' : 'row' }}>
+                {/* PROFILE PIC BESIDE MESSAGE */}
+                <img src={msg.sender_pic || 'https://via.placeholder.com/40'} style={{ width: '35px', height: '35px', borderRadius: '50%' }} alt="pfp" />
+                
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  {!isMe && <span style={{ fontSize: '12px', color: '#888', marginBottom: '4px', marginLeft: '5px' }}>{msg.sender}</span>}
+                  <div style={{ 
+                    padding: '12px 16px', borderRadius: '20px', fontSize: '14px',
+                    backgroundColor: isMe ? '#FF85A1' : '#fff',
+                    color: isMe ? '#fff' : '#333',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+                    border: isMe ? 'none' : '1px solid #FEE2E9'
+                  }}>
+                    {msg.text}
+                  </div>
+                </div>
+              </div>
+
+              {/* SEEN STATUS WITH TINY AVATARS (For Group Chats) */}
+              <div style={{ display: 'flex', justifyContent: isMe ? 'flex-end' : 'flex-start', marginTop: '5px', gap: '2px' }}>
+                {msg.seen_by?.split(',').map((user, idx) => (
+                   user && <div key={idx} style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#FFB1C1', fontSize: '8px', color: '#fff', textAlign: 'center' }}>{user[0]}</div>
+                ))}
+                {isMe && <span style={{ fontSize: '10px', color: '#FF85A1' }}>{msg.seen_by ? '✔ seen' : '✔ sent'}</span>}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* 3. INPUT FIELD */}
+      <div style={{ padding: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <input 
+          placeholder="Type something cute..." 
+          style={{ flex: 1, padding: '14px 20px', borderRadius: '30px', border: '1px solid #FEE2E9', outline: 'none', backgroundColor: '#fff' }} 
+        />
+        <button style={{ backgroundColor: '#FF85A1', border: 'none', borderRadius: '50%', width: '45px', height: '45px', color: '#fff', fontSize: '20px', cursor: 'pointer' }}>🚀</button>
       </div>
     </div>
   );
 }
-
 function GameZone() {
   return (
     <div style={{ padding: '20px' }}>
