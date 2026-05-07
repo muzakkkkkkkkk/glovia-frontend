@@ -1,3 +1,10 @@
+from flask import Flask, request, jsonify
+from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS  # <--- Make sure this is here
+
+app = Flask(__name__)
+CORS(app) # <--- This line allows your frontend to talk to your backend
+
 import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 
