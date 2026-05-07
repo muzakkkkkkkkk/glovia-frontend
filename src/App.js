@@ -2,28 +2,31 @@ import React, { useState, useEffect, useRef } from 'react';
 
 const BACKEND_URL = "https://glovia-backend-i15x.onrender.com";
 
-// --- Windows 10 Loader Component ---
+// --- Windows 10 Circular Loader ---
 const Win10Loader = () => (
-  <div style={{ position: 'relative', width: '50px', height: '50px', margin: '20px auto' }}>
+  <div style={{ position: 'relative', width: '60px', height: '60px', margin: '20px auto' }}>
     <style>{`
-      .win-dot { position: absolute; width: 6px; height: 6px; background: #FFB1C1; borderRadius: 50%; opacity: 0; animation: dotMove 3s infinite; }
-      .win-dot:nth-child(1) { animation-delay: 0s; }
-      .win-dot:nth-child(2) { animation-delay: 0.1s; }
-      .win-dot:nth-child(3) { animation-delay: 0.2s; }
-      .win-dot:nth-child(4) { animation-delay: 0.3s; }
-      .win-dot:nth-child(5) { animation-delay: 0.4s; }
-      @keyframes dotMove {
-        0% { transform: rotate(220deg); opacity: 1; animation-timing-function: ease-out; }
-        7% { transform: rotate(340deg); animation-timing-function: linear; }
-        30% { transform: rotate(460deg); animation-timing-function: ease-in-out; }
-        39% { transform: rotate(680deg); animation-timing-function: linear; }
-        70% { transform: rotate(800deg); opacity: 1; animation-timing-function: ease-out; }
-        75% { transform: rotate(920deg); animation-timing-function: ease-out; }
-        76% { transform: rotate(920deg); opacity: 0; }
-        100% { transform: rotate(920deg); opacity: 0; }
+      .dot { position: absolute; width: 6px; height: 6px; background: #FF85A1; border-radius: 50%; opacity: 0; animation: move 3s infinite; }
+      .dot:nth-child(1) { animation-delay: 0s; }
+      .dot:nth-child(2) { animation-delay: 0.1s; }
+      .dot:nth-child(3) { animation-delay: 0.2s; }
+      .dot:nth-child(4) { animation-delay: 0.3s; }
+      .dot:nth-child(5) { animation-delay: 0.4s; }
+      @keyframes move {
+        0% { transform: rotate(225deg); opacity: 1; animation-timing-function: ease-out; }
+        7% { transform: rotate(345deg); animation-timing-function: linear; }
+        30% { transform: rotate(455deg); animation-timing-function: ease-in-out; }
+        39% { transform: rotate(690deg); animation-timing-function: linear; }
+        70% { transform: rotate(815deg); opacity: 1; animation-timing-function: ease-out; }
+        75% { transform: rotate(945deg); animation-timing-function: ease-out; }
+        76% { transform: rotate(945deg); opacity: 0; }
+        100% { transform: rotate(945deg); opacity: 0; }
       }
+      .ripple { position: relative; overflow: hidden; }
+      .ripple:after { content: ""; display: block; position: absolute; width: 100%; height: 100%; top: 0; left: 0; pointer-events: none; background-image: radial-gradient(circle, #fff 10%, transparent 10.01%); background-repeat: no-repeat; background-position: 50%; transform: scale(10,10); opacity: 0; transition: transform .5s, opacity 1s; }
+      .ripple:active:after { transform: scale(0,0); opacity: .3; transition: 0s; }
     `}</style>
-    {[...Array(5)].map((_, i) => <div key={i} className="win-dot" />)}
+    {[...Array(5)].map((_, i) => <div key={i} className="dot" />)}
   </div>
 );
 
@@ -34,169 +37,144 @@ function App() {
   const [username, setUsername] = useState("");
 
   const handleLogin = (u) => {
-    setIsLoading(true); // Triggers the loader
-    // Force a 2-second load time to show the animation properly
+    setIsLoading(true);
     setTimeout(() => {
       setUsername(u);
       setIsLoggedIn(true);
       setIsLoading(false);
-    }, 2000); 
+    }, 2500); 
   };
 
   if (!isLoggedIn) return <AuthScreen onLogin={handleLogin} isLoading={isLoading} />;
 
   return (
-    <div style={{ backgroundColor: '#FFF9FB', height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', color: '#333' }}>
-      <header style={{ padding: '15px 20px', backgroundColor: '#fff', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #FFF0F3' }}>
-        <div style={{ color: '#FF85A1', fontWeight: 'bold', fontSize: '24px' }}>Glovia 💕</div>
-        <div style={{ fontSize: '20px' }}>🔍 🔔</div>
+    <div style={{ backgroundColor: '#FFF9FB', height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      {/* Top Bar with Search and Notification */}
+      <header style={{ padding: '15px 20px', backgroundColor: '#fff', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #FEE2E9' }}>
+        <h2 style={{ color: '#FF85A1', margin: 0, fontSize: '24px' }}>Glovia 💕</h2>
+        <div style={{ display: 'flex', gap: '20px' }}>
+          <button className="ripple" onClick={() => alert("Search coming soon!")} style={iconBtn}>🔍</button>
+          <button className="ripple" onClick={() => alert("No new notifications")} style={iconBtn}>🔔</button>
+        </div>
       </header>
 
-      <div style={{ flex: 1, overflowY: 'auto', paddingBottom: '20px' }}>
+      <div style={{ flex: 1, overflowY: 'auto' }}>
         {activeTab === 'home' && <HomeFeed />}
         {activeTab === 'chat' && <ChatSection currentUser={username} />}
         {activeTab === 'fun' && <GamesSection />}
         {activeTab === 'profile' && <ProfileView username={username} />}
       </div>
 
-      <nav style={{ height: '70px', backgroundColor: '#fff', display: 'flex', justifyContent: 'space-around', alignItems: 'center', borderTop: '1px solid #FFF0F3' }}>
-        <button onClick={() => setActiveTab('home')} style={navBtnStyle(activeTab === 'home')}>🏠<div>Home</div></button>
-        <button onClick={() => setActiveTab('chat')} style={navBtnStyle(activeTab === 'chat')}>💬<div>Chat</div></button>
-        <button style={plusBtnStyle}>+</button>
-        <button onClick={() => setActiveTab('fun')} style={navBtnStyle(activeTab === 'fun')}>🎮<div>Fun</div></button>
-        <button onClick={() => setActiveTab('profile')} style={navBtnStyle(activeTab === 'profile')}>👤<div>Profile</div></button>
+      {/* Navigation Bar */}
+      <nav style={{ height: '75px', backgroundColor: '#fff', display: 'flex', justifyContent: 'space-around', alignItems: 'center', borderTop: '1px solid #FEE2E9' }}>
+        <button className="ripple" onClick={() => setActiveTab('home')} style={navBtn(activeTab === 'home')}>🏠<div>Home</div></button>
+        <button className="ripple" onClick={() => setActiveTab('chat')} style={navBtn(activeTab === 'chat')}>💬<div>Chat</div></button>
+        <button className="ripple" onClick={() => alert("Create a new post! ✨")} style={plusBtnStyle}>+</button>
+        <button className="ripple" onClick={() => setActiveTab('fun')} style={navBtn(activeTab === 'fun')}>🎮<div>Fun</div></button>
+        <button className="ripple" onClick={() => setActiveTab('profile')} style={navBtn(activeTab === 'profile')}>👤<div>Profile</div></button>
       </nav>
     </div>
   );
 }
 
-// --- Dynamic Profile Component (Photo, Bio, Edit, Save) ---
+// --- Dynamic Profile Component ---
 function ProfileView({ username }) {
   const [isEditing, setIsEditing] = useState(false);
-  const [bio, setBio] = useState("✨ Seeking adventure and pastel aesthetics. ✨");
-  const [photoUrl, setPhotoUrl] = useState("https://i.pinimg.com/736x/8f/c9/26/8fc926d017a0224d4554b4231b4b1a45.jpg");
-
-  const saveProfile = () => {
-    // Backend API call placeholder (e.g., fetch(`${BACKEND_URL}/save_profile`, { method: 'POST', ... }))
-    alert("Profile saved! (Requires Backend Update 3)");
-    setIsEditing(false);
-  };
+  const [bio, setBio] = useState("Just a girl living her best life ✨");
+  const [pfp, setPfp] = useState("https://i.pinimg.com/736x/8f/c9/26/8fc926d017a0224d4554b4231b4b1a45.jpg");
 
   return (
     <div style={{ padding: '30px', textAlign: 'center' }}>
-      {/* Photo (Upload Simulation) */}
-      <div style={{ position: 'relative', width: '120px', height: '120px', margin: '0 auto 20px' }}>
-        <img src={photoUrl} alt="pfp" style={{ width: '120px', height: '120px', borderRadius: '50%', objectFit: 'cover', border: '5px solid #FF85A1' }} />
+      <div style={{ position: 'relative', width: '110px', height: '110px', margin: '0 auto 20px' }}>
+        <img src={pfp} style={{ width: '110px', height: '110px', borderRadius: '50%', objectFit: 'cover', border: '4px solid #FF85A1' }} alt="profile" />
         {isEditing && (
-          <button onClick={() => setPhotoUrl(prompt("Paste a URL for your new photo:", photoUrl))} style={{ position: 'absolute', bottom: 0, right: 0, background: '#FF85A1', border: 'none', color: '#fff', borderRadius: '50%', width: '30px', height: '30px' }}>+</button>
+          <button onClick={() => setPfp(prompt("Enter Image URL:"))} style={editPfpBtn}>+</button>
         )}
       </div>
-      
-      {/* Username and Bio */}
-      <h2 style={{ color: '#FF85A1', margin: '0 0 10px 0' }}>@{username}</h2>
-      
+      <h2 style={{ color: '#333' }}>@{username}</h2>
       {isEditing ? (
-        <textarea value={bio} onChange={e => setBio(e.target.value)} style={{ width: '100%', height: '80px', borderRadius: '15px', border: '1px solid #FEE2E9', padding: '10px', backgroundColor: '#FFF9FB' }} />
+        <textarea value={bio} onChange={e => setBio(e.target.value)} style={bioInput} />
       ) : (
-        <p style={{ color: '#666', fontSize: '14px', fontStyle: 'italic', marginBottom: '20px' }}>{bio}</p>
+        <p style={{ color: '#777', fontStyle: 'italic' }}>{bio}</p>
       )}
-
-      {/* Stats Bar */}
-      <div style={{ display: 'flex', justifyContent: 'space-around', background: '#FFF0F3', borderRadius: '15px', padding: '10px', marginBottom: '25px', color: '#FF85A1' }}>
-        <div><b>12</b><br/>Posts</div><div><b>240</b><br/>Following</div><div><b>1.2k</b><br/>Squad</div>
-      </div>
-
-      {/* Edit/Save Toggle */}
-      {isEditing ? (
-        <button onClick={saveProfile} style={{ ...primaryBtnStyle, width: '150px' }}>Save Changes</button>
-      ) : (
-        <button onClick={() => setIsEditing(true)} style={{ background: 'none', border: '2px solid #FF85A1', color: '#FF85A1', padding: '10px 25px', borderRadius: '25px', cursor: 'pointer' }}>Edit Profile</button>
-      )}
+      <button className="ripple" onClick={() => setIsEditing(!isEditing)} style={editBtn}>
+        {isEditing ? "Save Profile" : "Edit Profile"}
+      </button>
     </div>
   );
 }
 
-// --- Optimized ChatSection: Polls Real-Time and Sized Bubbles ---
+// --- Chat Section with Dynamic Width Bubbles ---
 function ChatSection({ currentUser }) {
-  const [activeSubTab, setActiveSubTab] = useState('global');
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
   const scrollRef = useRef(null);
 
-  // Poll for messages every 3 seconds to get others' messages
   useEffect(() => {
-    const syncChat = async () => {
+    const fetchMsgs = async () => {
       try {
-        const res = await fetch(`${BACKEND_URL}/messages/${activeSubTab === 'global' ? 0 : 1}`);
+        const res = await fetch(`${BACKEND_URL}/messages/0`);
         if (res.ok) setMessages(await res.json());
-      } catch (err) { console.error("Chat sync error"); }
+      } catch (err) { console.error("Sync error"); }
     };
-    syncChat();
-    const interval = setInterval(syncChat, 3000); 
+    const interval = setInterval(fetchMsgs, 3000);
     return () => clearInterval(interval);
-  }, [activeSubTab]);
-
-  useEffect(() => {
-    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-  }, [messages]);
+  }, []);
 
   const handleSend = async () => {
     if (!text.trim()) return;
-    const msgData = { sender: currentUser, text: text, group_id: activeSubTab === 'global' ? 0 : 1 };
-    setMessages([...messages, msgData]);
+    const msg = { sender: currentUser, text: text, group_id: 0 };
+    setMessages(prev => [...prev, msg]);
     setText("");
-    try {
-      await fetch(`${BACKEND_URL}/send_message`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(msgData)
-      });
-    } catch (err) { alert("Fail to send"); }
+    await fetch(`${BACKEND_URL}/send_message`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(msg)
+    });
   };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <div style={{ display: 'flex', padding: '10px', gap: '10px' }}>
-        <button onClick={() => setActiveSubTab('global')} style={subTabStyle(activeSubTab === 'global')}>All Girls Chat 🌸</button>
-        <button onClick={() => setActiveSubTab('groups')} style={subTabStyle(activeSubTab === 'groups')}>My Groups 👥</button>
+      <div ref={scrollRef} style={{ flex: 1, overflowY: 'auto', padding: '15px', display: 'flex', flexDirection: 'column' }}>
+        {messages.map((m, i) => {
+          const isMe = m.sender === currentUser;
+          return (
+            <div key={i} style={{ alignSelf: isMe ? 'flex-end' : 'flex-start', margin: '8px 0', maxWidth: '75%' }}>
+              <div style={{
+                backgroundColor: isMe ? '#FF85A1' : '#fff',
+                color: isMe ? '#fff' : '#333',
+                padding: '10px 16px',
+                borderRadius: isMe ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
+                boxShadow: '0 2px 5px rgba(0,0,0,0.05)',
+                display: 'inline-block', // KEY: Makes bubble fit the message width
+                width: 'auto'
+              }}>
+                <div style={{ fontSize: '10px', opacity: 0.8, marginBottom: '2px' }}>{m.sender}</div>
+                {m.text}
+              </div>
+            </div>
+          );
+        })}
       </div>
-
-      {activeSubTab === 'global' ? (
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-          <div ref={scrollRef} style={{ flex: 1, overflowY: 'auto', padding: '15px', display: 'flex', flexDirection: 'column' }}>
-            {messages.map((m, i) => {
-              const isMe = m.sender === currentUser;
-              return (
-                <div key={i} style={{ alignSelf: isMe ? 'flex-end' : 'flex-start', margin: '5px 0' }}>
-                  {!isMe && <span style={{ fontSize: '10px', color: '#FF85A1', marginLeft: '5px' }}>{m.sender}</span>}
-                  <div style={{ display: 'inline-block', maxWidth: '80%', padding: '10px 15px', borderRadius: isMe ? '15px 15px 5px 15px' : '15px 15px 15px 5px', backgroundColor: isMe ? '#FF85A1' : '#fff', color: isMe ? '#fff' : '#333', boxShadow: '0 2px 5px rgba(0,0,0,0.05)', fontSize: '14px' }}>
-                    {m.text}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-          <div style={{ padding: '15px', display: 'flex', gap: '10px', background: '#fff', borderTop: '1px solid #FFF0F3' }}>
-            <input value={text} onChange={e => setText(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSend()} placeholder="Type..." style={{ flex: 1, padding: '12px', borderRadius: '25px', border: '1px solid #FEE2E9', outline: 'none' }} />
-            <button onClick={handleSend} style={{ background: '#FF85A1', color: '#fff', border: 'none', borderRadius: '50%', width: '45px', height: '45px', fontSize: '20px' }}>🚀</button>
-          </div>
-        </div>
-      ) : <div style={{ padding: '20px', color: '#FF85A1' }}>My Groups Coming Soon...</div>}
+      <div style={{ padding: '15px', display: 'flex', gap: '10px', background: '#fff' }}>
+        <input value={text} onChange={e => setText(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSend()} style={chatInput} placeholder="Type a message..." />
+        <button onClick={handleSend} className="ripple" style={sendBtn}>🚀</button>
+      </div>
     </div>
   );
 }
 
-// --- AuthScreen with Windows 10 Loader ---
+// --- Components & Styling ---
 function AuthScreen({ onLogin, isLoading }) {
   const [u, setU] = useState("");
   return (
-    <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFF9FB', color: '#333' }}>
+    <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFF9FB' }}>
       <div style={{ textAlign: 'center', width: '80%' }}>
-        <h1 style={{ color: '#FF85A1', marginBottom: '20px' }}>Glovia 💕</h1>
+        <h1 style={{ color: '#FF85A1' }}>Glovia 💕</h1>
         {isLoading ? <Win10Loader /> : (
           <>
-            <input value={u} onChange={e => setU(e.target.value)} onKeyDown={e => e.key === 'Enter' && u && onLogin(u)} placeholder="Username" style={{ width: '100%', padding: '15px', borderRadius: '15px', border: '1px solid #FEE2E9', marginBottom: '15px', backgroundColor: '#fff', outline: 'none' }} />
-            <button onClick={() => u && onLogin(u)} style={primaryBtnStyle}>Enter</button>
+            <input value={u} onChange={e => setU(e.target.value)} onKeyDown={e => e.key === 'Enter' && u && onLogin(u)} placeholder="Username" style={authInput} />
+            <button onClick={() => u && onLogin(u)} style={authBtn}>Login</button>
           </>
         )}
       </div>
@@ -204,16 +182,19 @@ function AuthScreen({ onLogin, isLoading }) {
   );
 }
 
-// --- Home and Games Placeholders ---
-function HomeFeed() { return <div style={p20Style}><div style={{ background: '#FEE2E9', color: '#FF85A1', padding: '20px', borderRadius: '20px', fontWeight: 'bold' }}>Welcome Home! Posts coming soon... 🎀</div></div>; }
-function GamesSection() { return <div style={p20Style}><h3 style={{color: '#FF85A1'}}>Games Zone 🎮</h3><div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px'}}><div style={gameCard}>Trivia 🧩</div><div style={gameCard}>Dress Up 👗</div></div></div>; }
+function HomeFeed() { return <div style={{padding: '20px', color: '#FF85A1'}}>Welcome Home! No posts yet. 🎀</div>; }
+function GamesSection() { return <div style={{padding: '20px', color: '#FF85A1'}}>Games Zone coming soon! 🎮</div>; }
 
-// --- Consolidated Styles ---
-const p20Style = { padding: '20px' };
-const gameCard = { height: '100px', backgroundColor: '#fff', borderRadius: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', color: '#FF85A1', border: '1px solid #FEE2E9' };
-const navBtnStyle = (active) => ({ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', color: active ? '#FF85A1' : '#BBB', textAlign: 'center', fontSize: '10px' });
-const plusBtnStyle = { backgroundColor: '#FF85A1', color: '#fff', width: '55px', height: '55px', borderRadius: '50%', border: 'none', fontSize: '28px', transform: 'translateY(-10px)', boxShadow: '0 4px 12px rgba(255,133,161,0.3)' };
-const subTabStyle = (active) => ({ flex: 1, padding: '10px', borderRadius: '20px', border: 'none', backgroundColor: active ? '#FF85A1' : '#FEE2E9', color: active ? '#fff' : '#FF85A1', fontWeight: 'bold' });
-const primaryBtnStyle = { width: '100%', padding: '15px', borderRadius: '15px', border: 'none', backgroundColor: '#FF85A1', color: '#fff', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer' };
+// --- CSS STYLES ---
+const navBtn = (active) => ({ background: 'none', border: 'none', color: active ? '#FF85A1' : '#BBB', cursor: 'pointer', fontSize: '10px' });
+const plusBtnStyle = { backgroundColor: '#FF85A1', color: '#fff', width: '55px', height: '55px', borderRadius: '50%', border: 'none', fontSize: '28px', boxShadow: '0 4px 10px rgba(255,133,161,0.4)', transform: 'translateY(-10px)' };
+const iconBtn = { background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer' };
+const chatInput = { flex: 1, padding: '12px 20px', borderRadius: '25px', border: '1px solid #FEE2E9', outline: 'none' };
+const sendBtn = { background: '#FF85A1', color: '#fff', border: 'none', borderRadius: '50%', width: '45px', height: '45px' };
+const authInput = { width: '100%', padding: '15px', borderRadius: '15px', border: '1px solid #FEE2E9', marginBottom: '15px' };
+const authBtn = { width: '100%', padding: '15px', borderRadius: '15px', border: 'none', background: '#FF85A1', color: '#fff', fontWeight: 'bold' };
+const editBtn = { background: 'none', border: '2px solid #FF85A1', color: '#FF85A1', padding: '10px 20px', borderRadius: '20px', cursor: 'pointer' };
+const bioInput = { width: '100%', padding: '10px', borderRadius: '10px', border: '1px solid #FEE2E9', marginBottom: '10px' };
+const editPfpBtn = { position: 'absolute', bottom: 0, right: 0, background: '#FF85A1', color: '#fff', border: 'none', borderRadius: '50%', width: '30px', height: '30px' };
 
 export default App;
