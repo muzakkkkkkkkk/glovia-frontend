@@ -3,96 +3,140 @@ import React, { useState, useEffect } from 'react';
 const BACKEND_URL = "https://glovia-backend-i15x.onrender.com";
 
 const styles = {
-  container: { backgroundColor: '#FFF9FB', height: '100vh', display: 'flex', flexDirection: 'column', fontFamily: 'sans-serif' },
+  container: { backgroundColor: '#FFF9FB', height: '100vh', display: 'flex', flexDirection: 'column', fontFamily: 'sans-serif', overflow: 'hidden' },
   header: { padding: '15px 20px', backgroundColor: '#fff', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 2px 10px rgba(255, 133, 161, 0.1)' },
-  searchBar: { padding: '10px 20px', backgroundColor: '#fff' },
-  searchInput: { width: '100%', padding: '10px', borderRadius: '20px', border: '1px solid #FEE2E9', backgroundColor: '#FFF9FB', outline: 'none' },
   navBar: { position: 'fixed', bottom: '20px', left: '20px', right: '20px', height: '65px', backgroundColor: 'rgba(255, 255, 255, 0.95)', borderRadius: '35px', display: 'flex', justifyContent: 'space-around', alignItems: 'center', boxShadow: '0 10px 30px rgba(214, 51, 132, 0.15)', zIndex: 100 },
-  // Adding the clicking effect style
-  navBtn: { background: 'none', border: 'none', fontSize: '22px', cursor: 'pointer', transition: 'transform 0.1s', ':active': { transform: 'scale(0.8)' } },
-  notificationPanel: { position: 'fixed', top: '70px', right: '20px', width: '250px', backgroundColor: '#fff', borderRadius: '20px', boxShadow: '0 10px 30px rgba(0,0,0,0.1)', padding: '15px', zIndex: 1000 }
+  navBtn: { background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', transition: 'transform 0.1s' },
+  activeBtn: { transform: 'scale(1.2)', filter: 'drop-shadow(0 0 5px #FF85A1)' },
+  searchBar: { padding: '10px 20px', backgroundColor: '#fff' },
+  searchInput: { width: '100%', padding: '12px', borderRadius: '20px', border: '1px solid #FEE2E9', backgroundColor: '#FFF9FB', outline: 'none' },
+  postCard: { backgroundColor: '#fff', borderRadius: '20px', margin: '10px', overflow: 'hidden', boxShadow: '0 5px 15px rgba(0,0,0,0.05)' }
 };
 
 function App() {
   const [activeTab, setActiveTab] = useState('home');
-  const [showNotifications, setShowNotifications] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [notifications, setNotifications] = useState([]);
+  const [showNotif, setShowNotif] = useState(false);
 
-  // UI for the Search & Navigation
+  if (!isLoggedIn) return <AuthScreen onLogin={(user) => { setUsername(user); setIsLoggedIn(true); }} />;
+
   return (
     <div style={styles.container}>
       <header style={styles.header}>
         <span style={{ color: '#FF85A1', fontWeight: 'bold', fontSize: '24px' }}>Glovia 💕</span>
-        <div style={{ display: 'flex', gap: '15px' }}>
-          <span onClick={() => setShowNotifications(!showNotifications)} style={{ cursor: 'pointer' }}>🔔</span>
+        <div style={{ position: 'relative' }}>
+          <span onClick={() => setShowNotif(!showNotif)} style={{ cursor: 'pointer', fontSize: '20px' }}>🔔</span>
+          {showNotif && (
+            <div style={{ position: 'absolute', right: 0, top: '30px', width: '200px', backgroundColor: '#fff', borderRadius: '15px', padding: '10px', boxShadow: '0 10px 20px rgba(0,0,0,0.1)', zIndex: 200 }}>
+              <p style={{ fontSize: '12px', color: '#FF85A1', fontWeight: 'bold' }}>Recent Messages 💌</p>
+              <p style={{ fontSize: '11px', color: '#999' }}>No new alerts.</p>
+            </div>
+          )}
         </div>
       </header>
 
-      {/* SEARCH SECTION */}
       <div style={styles.searchBar}>
         <input 
           style={styles.searchInput} 
           placeholder="🔍 Search unique usernames..." 
+          value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
       </div>
 
-      {/* NOTIFICATION PANEL */}
-      {showNotifications && (
-        <div style={styles.notificationPanel}>
-          <h4 style={{ color: '#FF85A1', margin: '0 0 10px 0' }}>Messages 💌</h4>
-          <p style={{ fontSize: '12px', color: '#888' }}>No new messages yet!</p>
-        </div>
-      )}
-
-      {/* MAIN CONTENT AREA */}
       <div style={{ flex: 1, overflowY: 'auto', paddingBottom: '100px' }}>
-        {activeTab === 'home' && <HomeFeed />}
-        {activeTab === 'chat' && <ChatRoom currentUser={username} />}
+        {activeTab === 'home' && <HomeFeed searchQuery={searchQuery} />}
+        {activeTab === 'chat' && <ChatSection currentUser={username} />}
         {activeTab === 'fun' && <GameZone />}
-        {activeTab === 'profile' && <ProfileView user={username} />}
+        {activeTab === 'profile' && <ProfileView username={username} />}
       </div>
 
-      {/* FLOATING NAV WITH CLICK EFFECTS */}
       <nav style={styles.navBar}>
-        <button style={styles.navBtn} onClick={() => setActiveTab('home')}>🏠</button>
-        <button style={styles.navBtn} onClick={() => setActiveTab('chat')}>💬</button>
-        <button style={{ ...styles.navBtn, backgroundColor: '#FF85A1', borderRadius: '50%', color: '#fff', width: '50px', height: '50px' }}>+</button>
-        <button style={styles.navBtn} onClick={() => setActiveTab('fun')}>🎮</button>
-        <button style={styles.navBtn} onClick={() => setActiveTab('profile')}>👤</button>
+        <button onClick={() => setActiveTab('home')} style={{...styles.navBtn, ...(activeTab==='home' ? styles.activeBtn : {})}}>🏠</button>
+        <button onClick={() => setActiveTab('chat')} style={{...styles.navBtn, ...(activeTab==='chat' ? styles.activeBtn : {})}}>💬</button>
+        <button style={{ backgroundColor: '#FF85A1', color: '#fff', width: '50px', height: '50px', borderRadius: '50%', border: 'none', fontSize: '25px', transform: 'translateY(-10px)' }}>+</button>
+        <button onClick={() => setActiveTab('fun')} style={{...styles.navBtn, ...(activeTab==='fun' ? styles.activeBtn : {})}}>🎮</button>
+        <button onClick={() => setActiveTab('profile')} style={{...styles.navBtn, ...(activeTab==='profile' ? styles.activeBtn : {})}}>👤</button>
       </nav>
     </div>
   );
 }
 
-// 2. CHAT COMPONENT (One-on-One)
-function ChatRoom({ currentUser }) {
+// --- SUB-COMPONENTS ---
+
+function HomeFeed({ searchQuery }) {
+  const [posts, setPosts] = useState([]);
+  useEffect(() => {
+    fetch(`${BACKEND_URL}/feed`).then(res => res.json()).then(data => setPosts(data));
+  }, []);
+
+  const filteredPosts = posts.filter(p => p.username.toLowerCase().includes(searchQuery.toLowerCase()));
+
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', padding: '5px' }}>
+      {filteredPosts.map((post, i) => (
+        <div key={i} style={styles.postCard}>
+          <img src={post.image_url} alt="post" style={{ width: '100%', aspectRatio: '1/1', objectFit: 'cover' }} />
+          <div style={{ padding: '8px' }}>
+            <p style={{ fontSize: '12px', fontWeight: 'bold', margin: 0 }}>{post.username} <span style={{ float: 'right' }}>❤️</span></p>
+            <p style={{ fontSize: '10px', color: '#777', margin: 0 }}>{post.caption}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ChatSection({ currentUser }) {
   return (
     <div style={{ padding: '20px' }}>
-      <h3 style={{ color: '#FF85A1' }}>Personal Messages</h3>
-      <div style={{ backgroundColor: '#fff', borderRadius: '15px', padding: '15px', height: '300px', display: 'flex', flexDirection: 'column', justifyContent: 'center', textAlign: 'center' }}>
-        <p style={{ color: '#ccc' }}>Select a friend to start a one-on-one pink chat! ✨</p>
+      <h3 style={{ color: '#FF85A1' }}>1-on-1 Messages 💌</h3>
+      <div style={{ background: '#fff', borderRadius: '20px', height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ccc' }}>
+        Search a user to start chatting!
       </div>
     </div>
   );
 }
 
-// 3. GAME ZONE COMPONENT
 function GameZone() {
   return (
     <div style={{ padding: '20px' }}>
-      <h3 style={{ color: '#FF85A1' }}>Game Zone 🎮</h3>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-        <div style={{ background: '#FFEBF0', padding: '20px', borderRadius: '20px', textAlign: 'center' }}>
-          <h4>Truth or Dare 😈</h4>
-          <button style={{ background: '#FF85A1', color: '#fff', border: 'none', borderRadius: '10px', padding: '5px 10px' }}>Challenge a Friend</button>
+      <h3 style={{ color: '#FF85A1' }}>Fun Zone 🎮</h3>
+      {['Truth or Dare', 'Never Have I Ever', 'Rage Bait'].map(game => (
+        <div key={game} style={{ background: '#fff', padding: '15px', borderRadius: '15px', marginBottom: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span>{game}</span>
+          <button style={{ backgroundColor: '#FF85A1', border: 'none', color: '#fff', padding: '5px 10px', borderRadius: '10px' }}>Challenge</button>
         </div>
-        <div style={{ background: '#EBF4FF', padding: '20px', borderRadius: '20px', textAlign: 'center' }}>
-          <h4>Puzzle Solve 🧩</h4>
-          <button style={{ background: '#85A1FF', color: '#fff', border: 'none', borderRadius: '10px', padding: '5px 10px' }}>Play Now</button>
-        </div>
+      ))}
+    </div>
+  );
+}
+
+function ProfileView({ username }) {
+  return (
+    <div style={{ textAlign: 'center', padding: '40px 20px' }}>
+      <div style={{ width: '100px', height: '100px', borderRadius: '50%', backgroundColor: '#FFB1C1', margin: '0 auto 15px' }}></div>
+      <h2 style={{ color: '#FF85A1' }}>@{username}</h2>
+      <p style={{ color: '#888' }}>Pink lover & Aesthetic seeker ✨</p>
+      <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: '20px' }}>
+        <div><b>24</b><br/><span style={{fontSize:'12px'}}>Posts</span></div>
+        <div><b>128</b><br/><span style={{fontSize:'12px'}}>Followers</span></div>
+      </div>
+    </div>
+  );
+}
+
+function AuthScreen({ onLogin }) {
+  const [u, setU] = useState("");
+  return (
+    <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFF9FB' }}>
+      <div style={{ background: '#fff', padding: '30px', borderRadius: '30px', width: '280px', textAlign: 'center', boxShadow: '0 10px 30px rgba(0,0,0,0.05)' }}>
+        <h2 style={{ color: '#FF85A1' }}>Glovia 💕</h2>
+        <input style={{ width: '100%', padding: '12px', margin: '10px 0', borderRadius: '15px', border: '1px solid #FEE2E9' }} placeholder="Username" onChange={e => setU(e.target.value)} />
+        <button onClick={() => onLogin(u)} style={{ width: '100%', padding: '12px', backgroundColor: '#FF85A1', color: '#fff', border: 'none', borderRadius: '25px', fontWeight: 'bold' }}>Enter Glovia</button>
       </div>
     </div>
   );
