@@ -3,17 +3,84 @@ import React, { useState, useEffect } from 'react';
 const BACKEND_URL = "https://glovia-backend-i15x.onrender.com";
 
 const styles = {
-  container: { backgroundColor: '#FFF5F7', height: '100vh', display: 'flex', flexDirection: 'column', fontFamily: 'sans-serif', overflow: 'hidden' },
-  header: { padding: '15px', backgroundColor: '#fff', borderBottom: '1px solid #FEE2E9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
-  feedGrid: { flex: 1, overflowY: 'auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', padding: '10px' },
-  postCard: { backgroundColor: '#fff', borderRadius: '15px', overflow: 'hidden', boxShadow: '0 4px 10px rgba(0,0,0,0.03)' },
-  postImg: { width: '100%', aspectRatio: '1/1', objectFit: 'cover' },
-  postInfo: { padding: '8px' },
-  navBar: { height: '60px', backgroundColor: '#fff', borderTop: '1px solid #FEE2E9', display: 'flex', justifyContent: 'space-around', alignItems: 'center' },
-  navBtn: { fontSize: '20px', cursor: 'pointer', background: 'none', border: 'none' },
-  plusBtn: { backgroundColor: '#FF85A1', color: '#fff', width: '45px', height: '45px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px', border: 'none' }
+  container: { 
+    backgroundColor: '#FFF9FB', 
+    height: '100vh', 
+    display: 'flex', 
+    flexDirection: 'column', 
+    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif", 
+    overflow: 'hidden' 
+  },
+  header: { 
+    padding: '15px 20px', 
+    backgroundColor: '#fff', 
+    display: 'flex', 
+    justifyContent: 'space-between', 
+    alignItems: 'center',
+    boxShadow: '0 2px 10px rgba(255, 133, 161, 0.1)'
+  },
+  feedGrid: { 
+    flex: 1, 
+    overflowY: 'auto', 
+    display: 'grid', 
+    gridTemplateColumns: '1fr 1fr', 
+    gap: '15px', 
+    padding: '15px',
+    paddingBottom: '80px' // Space for nav
+  },
+  postCard: { 
+    backgroundColor: '#fff', 
+    borderRadius: '20px', 
+    overflow: 'hidden', 
+    boxShadow: '0 8px 20px rgba(255, 133, 161, 0.12)',
+    border: '1px solid #FFF0F3'
+  },
+  postImg: { 
+    width: '100%', 
+    aspectRatio: '0.85/1', 
+    objectFit: 'cover' 
+  },
+  postInfo: { 
+    padding: '10px',
+    backgroundColor: '#fff'
+  },
+  navBar: { 
+    position: 'fixed',
+    bottom: '20px',
+    left: '20px',
+    right: '20px',
+    height: '65px', 
+    backgroundColor: 'rgba(255, 255, 255, 0.95)', 
+    borderRadius: '35px',
+    display: 'flex', 
+    justifyContent: 'space-around', 
+    alignItems: 'center',
+    boxShadow: '0 10px 30px rgba(214, 51, 132, 0.15)',
+    backdropFilter: 'blur(10px)',
+    border: '1px solid rgba(255, 255, 255, 0.3)'
+  },
+  navBtn: { 
+    fontSize: '22px', 
+    cursor: 'pointer', 
+    background: 'none', 
+    border: 'none',
+    color: '#FF85A1'
+  },
+  plusBtn: { 
+    backgroundColor: '#FF85A1', 
+    color: '#fff', 
+    width: '55px', 
+    height: '55px', 
+    borderRadius: '50%', 
+    display: 'flex', 
+    alignItems: 'center', 
+    justifyContent: 'center', 
+    fontSize: '28px', 
+    border: 'none',
+    boxShadow: '0 5px 15px rgba(255, 133, 161, 0.4)',
+    transform: 'translateY(-10px)' // Makes it pop up like your image
+  }
 };
-
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [activeTab, setActiveTab] = useState('home');
