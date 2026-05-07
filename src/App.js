@@ -130,31 +130,51 @@ function HomeFeed({ searchQuery }) {
 }
 
 function ChatSection({ currentUser }) {
-  const [chatType, setChatType] = useState('all'); // 'all' or 'groups'
-  const [messages, setMessages] = useState([]);
+  const [activeTab, setActiveTab] = useState('global'); // 'global', 'groups', 'personal'
+  
+  const groups = [
+    { name: "Study Besties 📖", members: "25 members", color: "#B19CD9" },
+    { name: "Outfit Inspo 👗", members: "42 members", color: "#FFB1C1" },
+    { name: "Late Night Talks 🌙", members: "36 members", color: "#9575CD" }
+  ];
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', backgroundColor: '#FFF9FB' }}>
-      {/* 1. THE PINK TOGGLE BAR (Matches image 2 & 7) */}
-      <div style={{ display: 'flex', padding: '15px', gap: '10px' }}>
-        <button 
-          onClick={() => setChatType('all')}
-          style={{ 
-            flex: 1, padding: '12px', borderRadius: '25px', border: 'none', fontWeight: 'bold',
-            backgroundColor: chatType === 'all' ? '#FF85A1' : '#fff',
-            color: chatType === 'all' ? '#fff' : '#FF85A1',
-            boxShadow: '0 4px 10px rgba(255, 133, 161, 0.2)', transition: '0.2s'
-          }}>All Girls Chat 🌸</button>
-        <button 
-          onClick={() => setChatType('groups')}
-          style={{ 
-            flex: 1, padding: '12px', borderRadius: '25px', border: 'none', fontWeight: 'bold',
-            backgroundColor: chatType === 'groups' ? '#FF85A1' : '#fff',
-            color: chatType === 'groups' ? '#fff' : '#FF85A1',
-            boxShadow: '0 4px 10px rgba(255, 133, 161, 0.1)'
-          }}>My Groups 👥</button>
+    <div style={{ height: '100%', backgroundColor: '#FFF9FB', display: 'flex', flexDirection: 'column' }}>
+      {/* TRIPLE TAB NAVIGATION */}
+      <div style={{ display: 'flex', padding: '15px', gap: '8px', overflowX: 'auto' }}>
+        <button onClick={() => setActiveTab('global')} style={tabStyle(activeTab === 'global')}>All Girls Chat 🌸</button>
+        <button onClick={() => setActiveTab('groups')} style={tabStyle(activeTab === 'groups')}>My Groups 👥</button>
+        <button onClick={() => setActiveTab('personal')} style={tabStyle(activeTab === 'personal')}>Personal 💌</button>
       </div>
 
+      {activeTab === 'global' && <ChatWindow groupId={0} currentUser={currentUser} />}
+      
+      {activeTab === 'groups' && (
+        <div style={{ padding: '10px' }}>
+          <button style={createGroupBtn}>+ Create Group</button>
+          {groups.map(g => (
+            <div key={g.name} style={groupCardStyle}>
+              <div style={{ ...iconStyle, backgroundColor: g.color }}>{g.name[0]}</div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: 'bold' }}>{g.name}</div>
+                <div style={{ fontSize: '12px', color: '#888' }}>{g.members}</div>
+              </div>
+              <div style={arrowStyle}>❯</div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {activeTab === 'personal' && <div style={placeholderStyle}>Your private conversations will appear here ✨</div>}
+    </div>
+  );
+}
+
+const tabStyle = (active) => ({
+  padding: '10px 18px', borderRadius: '20px', border: 'none', whiteSpace: 'nowrap',
+  backgroundColor: active ? '#FF85A1' : '#fff', color: active ? '#fff' : '#FF85A1',
+  fontWeight: 'bold', boxShadow: '0 2px 8px rgba(0,0,0,0.05)', cursor: 'pointer'
+});
       {/* 2. CHAT MESSAGES AREA */}
       <div style={{ flex: 1, overflowY: 'auto', padding: '15px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
         {messages.map((msg, i) => {
@@ -239,6 +259,44 @@ function AuthScreen({ onLogin }) {
         <input style={{ width: '100%', padding: '12px', margin: '10px 0', borderRadius: '15px', border: '1px solid #FEE2E9' }} placeholder="Username" onChange={e => setU(e.target.value)} />
         <button onClick={() => onLogin(u)} style={{ width: '100%', padding: '12px', backgroundColor: '#FF85A1', color: '#fff', border: 'none', borderRadius: '25px', fontWeight: 'bold' }}>Enter Glovia</button>
       </div>
+    </div>
+  );
+}
+
+function SearchBar({ currentUser, onProfileView }) {
+  const [query, setQuery] = useState("");
+
+  const handleSearch = async (e) => {
+    if (e.key === 'Enter') {
+      const res = await fetch(`${BACKEND_URL}/search_user?username=${query}&viewer=${currentUser}`);
+      const data = await res.json();
+      if (res.ok) onProfileView(data);
+      else alert("User not found 🔍");
+    }
+  };
+
+  return (
+    <input 
+      style={searchInputStyle} 
+      placeholder="Search unique username + Enter" 
+      onKeyDown={handleSearch}
+      onChange={(e) => setQuery(e.target.value)}
+    />
+  );
+}
+
+function UserProfile({ profileData, currentUser }) {
+  return (
+    <div style={{ textAlign: 'center', padding: '20px' }}>
+      <div style={bigAvatarStyle}>{profileData.username[0]}</div>
+      <h2>@{profileData.username}</h2>
+      <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+        <button style={profileData.is_following ? followedBtn : followBtn}>
+          {profileData.is_following ? "Following" : "Follow"}
+        </button>
+        <button style={msgBtn}>Message</button>
+      </div>
+      {/* Posts Grid logic follows here... */}
     </div>
   );
 }
