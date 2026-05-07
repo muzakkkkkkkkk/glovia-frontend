@@ -1,12 +1,4 @@
-from flask import Flask, request, jsonify
-from flask_sqlalchemy import SQLAlchemy
-from flask_cors import CORS  # <--- Make sure this is here
-
-app = Flask(__name__)
-CORS(app) # <--- This line allows your frontend to talk to your backend
-
 import React, { useState, useEffect } from 'react';
-import io from 'socket.io-client';
 
 const BACKEND_URL = "https://glovia-backend-i15x.onrender.com";
 
@@ -34,9 +26,12 @@ function App() {
   const fetchFeed = async () => {
     try {
       const res = await fetch(`${BACKEND_URL}/feed`);
+      if (!res.ok) throw new Error("Server response not ok");
       const data = await res.json();
       setFeed(data);
-    } catch (err) { console.error("Feed error:", err); }
+    } catch (err) { 
+      console.error("Feed fetch error:", err);
+    }
   };
 
   useEffect(() => {
@@ -53,12 +48,18 @@ function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
       });
-      if (res.ok) setIsLoggedIn(true);
-      else alert("Login failed! ✨");
-    } catch (err) { alert("Server connection error"); }
+      if (res.ok) {
+        setIsLoggedIn(true);
+      } else {
+        alert("Login failed! Please check your credentials. ✨");
+      }
+    } catch (err) { 
+      alert("Still connecting to server... please wait 30 seconds and try again. 💕"); 
+    }
   };
 
   const handleUpload = async () => {
+    if (!newPost.imageUrl) return alert("Please provide an image URL! ✨");
     try {
       const res = await fetch(`${BACKEND_URL}/create_post`, {
         method: 'POST',
@@ -74,17 +75,17 @@ function App() {
         setNewPost({ imageUrl: '', caption: '' });
         fetchFeed();
       }
-    } catch (err) { alert("Upload failed"); }
+    } catch (err) { alert("Upload failed. Try again! ✨"); }
   };
 
   if (!isLoggedIn) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', backgroundColor: '#FFF5F7' }}>
-        <form onSubmit={handleLogin} style={{ background: '#fff', padding: '30px', borderRadius: '20px', width: '280px', textAlign: 'center' }}>
+        <form onSubmit={handleLogin} style={{ background: '#fff', padding: '30px', borderRadius: '20px', width: '280px', textAlign: 'center', boxShadow: '0 10px 25px rgba(214, 51, 132, 0.1)' }}>
           <h2 style={{ color: '#D63384' }}>Glovia 💕</h2>
-          <input style={{ width: '100%', margin: '10px 0', padding: '10px', borderRadius: '10px', border: '1px solid #ddd' }} placeholder="Username" onChange={e => setUsername(e.target.value)} />
-          <input type="password" style={{ width: '100%', margin: '10px 0', padding: '10px', borderRadius: '10px', border: '1px solid #ddd' }} placeholder="Password" onChange={e => setPassword(e.target.value)} />
-          <button style={{ background: '#FF85A1', color: '#fff', border: 'none', padding: '10px', width: '100%', borderRadius: '10px', cursor: 'pointer' }}>Login</button>
+          <input style={{ width: '100%', margin: '10px 0', padding: '10px', borderRadius: '10px', border: '1px solid #FEE2E9', outline: 'none' }} placeholder="Username" onChange={e => setUsername(e.target.value)} />
+          <input type="password" style={{ width: '100%', margin: '10px 0', padding: '10px', borderRadius: '10px', border: '1px solid #FEE2E9', outline: 'none' }} placeholder="Password" onChange={e => setPassword(e.target.value)} />
+          <button type="submit" style={{ background: '#FF85A1', color: '#fff', border: 'none', padding: '10px', width: '100%', borderRadius: '10px', cursor: 'pointer', fontWeight: 'bold' }}>Login</button>
         </form>
       </div>
     );
@@ -97,9 +98,9 @@ function App() {
         <div>🔍 🔔</div>
       </header>
 
-      {activeTab === 'home' && (
-        <div style={styles.feedGrid}>
-          {feed.length > 0 ? feed.map((post, i) => (
+      <div style={styles.feedGrid}>
+        {activeTab === 'home' ? (
+          feed.length > 0 ? feed.map((post, i) => (
             <div key={i} style={styles.postCard}>
               <img src={post.image_url} alt="post" style={styles.postImg} />
               <div style={styles.postInfo}>
@@ -107,18 +108,16 @@ function App() {
                 <p style={{ fontSize: '10px', color: '#777', margin: 0 }}>{post.caption}</p>
               </div>
             </div>
-          )) : <p style={{ gridColumn: 'span 2', textAlign: 'center', color: '#999', marginTop: '20px' }}>No posts yet. Be the first! ✨</p>}
-        </div>
-      )}
-
-      {activeTab === 'chat' && (
-        <div style={{ flex: 1, padding: '20px', textAlign: 'center' }}>
-          <p style={{ color: '#D63384' }}>Chatting as <strong>{username}</strong>...</p>
-        </div>
-      )}
+          )) : <p style={{ gridColumn: 'span 2', textAlign: 'center', color: '#999', marginTop: '20px' }}>No posts yet. Be the first! ✨</p>
+        ) : (
+          <div style={{ gridColumn: 'span 2', textAlign: 'center', padding: '20px' }}>
+            <p style={{ color: '#D63384' }}>Chat and Games coming soon! 🎮</p>
+          </div>
+        )}
+      </div>
 
       {showUpload && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(255,245,247,0.98)', zIndex: 1000, padding: '40px 20px', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(255,245,247,0.98)', zIndex: 1000, padding: '40px 20px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
           <div style={{ background: '#fff', padding: '25px', borderRadius: '30px', boxShadow: '0 15px 35px rgba(214, 51, 132, 0.1)' }}>
             <h2 style={{ color: '#D63384', textAlign: 'center', marginBottom: '20px' }}>New Post ✨</h2>
             <input style={{ width: '100%', padding: '12px', marginBottom: '15px', borderRadius: '15px', border: '1px solid #FEE2E9', outline: 'none' }} placeholder="Paste Image URL..." value={newPost.imageUrl} onChange={e => setNewPost({...newPost, imageUrl: e.target.value})} />
@@ -134,7 +133,7 @@ function App() {
         <button style={styles.navBtn} onClick={() => setActiveTab('chat')}>💬</button>
         <button style={styles.plusBtn} onClick={() => setShowUpload(true)}>+</button>
         <button style={styles.navBtn}>🎮</button>
-        <button style={styles.navBtn} onClick={() => setActiveTab('profile')}>👤</button>
+        <button style={styles.navBtn}>👤</button>
       </nav>
     </div>
   );
