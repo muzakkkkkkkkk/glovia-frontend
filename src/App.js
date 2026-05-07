@@ -67,25 +67,64 @@ function App() {
 
 // --- SUB-COMPONENTS ---
 
+// --- HOME SCREEN COMPONENT ---
 function HomeFeed({ searchQuery }) {
   const [posts, setPosts] = useState([]);
+  const [activeCategory, setActiveCategory] = useState('For you');
+
   useEffect(() => {
     fetch(`${BACKEND_URL}/feed`).then(res => res.json()).then(data => setPosts(data));
   }, []);
 
-  const filteredPosts = posts.filter(p => p.username.toLowerCase().includes(searchQuery.toLowerCase()));
-
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', padding: '5px' }}>
-      {filteredPosts.map((post, i) => (
-        <div key={i} style={styles.postCard}>
-          <img src={post.image_url} alt="post" style={{ width: '100%', aspectRatio: '1/1', objectFit: 'cover' }} />
-          <div style={{ padding: '8px' }}>
-            <p style={{ fontSize: '12px', fontWeight: 'bold', margin: 0 }}>{post.username} <span style={{ float: 'right' }}>❤️</span></p>
-            <p style={{ fontSize: '10px', color: '#777', margin: 0 }}>{post.caption}</p>
+    <div>
+      {/* CATEGORY TAB BAR */}
+      <div style={{ display: 'flex', gap: '15px', padding: '10px 20px', backgroundColor: '#fff', overflowX: 'auto', whiteSpace: 'nowrap', borderBottom: '1px solid #FFF0F3' }}>
+        {['For you', 'Following', 'Outfits', 'Aesthetic'].map(tab => (
+          <span 
+            key={tab} 
+            onClick={() => setActiveCategory(tab)}
+            style={{ 
+              fontSize: '14px', 
+              color: activeCategory === tab ? '#FF85A1' : '#BBB',
+              fontWeight: activeCategory === tab ? 'bold' : '500',
+              padding: '5px 12px',
+              borderRadius: '20px',
+              backgroundColor: activeCategory === tab ? '#FFF0F3' : 'transparent',
+              cursor: 'pointer',
+              transition: 'all 0.2s'
+            }}
+          >
+            {tab}
+          </span>
+        ))}
+      </div>
+
+      {/* FEED GRID */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', padding: '15px' }}>
+        {posts.filter(p => p.username.toLowerCase().includes(searchQuery.toLowerCase())).map((post, i) => (
+          <div key={i} style={{ backgroundColor: '#fff', borderRadius: '18px', overflow: 'hidden', boxShadow: '0 4px 12px rgba(255, 133, 161, 0.1)' }}>
+            <div style={{ position: 'relative' }}>
+              <img src={post.image_url} alt="aesthetic" style={{ width: '100%', aspectRatio: '0.85/1', objectFit: 'cover' }} />
+              <div style={{ position: 'absolute', top: '8px', right: '8px', background: 'rgba(255,255,255,0.7)', borderRadius: '50%', padding: '4px' }}>🤍</div>
+            </div>
+            
+            <div style={{ padding: '10px' }}>
+              <p style={{ fontSize: '13px', fontWeight: '600', margin: '0 0 4px 0' }}>{post.username}</p>
+              <p style={{ fontSize: '11px', color: '#666', margin: '0 0 8px 0', height: '1.2em', overflow: 'hidden' }}>{post.caption}</p>
+              
+              {/* LIKES & COMMENTS BAR */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', gap: '8px', fontSize: '11px', color: '#FF85A1' }}>
+                  <span>❤️ {post.likes || 0}</span>
+                  <span>💬 {post.comment_count || 0}</span>
+                </div>
+                <button style={{ background: 'none', border: 'none', fontSize: '14px', cursor: 'pointer' }}>➕</button>
+              </div>
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }
